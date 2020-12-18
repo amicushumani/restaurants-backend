@@ -1,0 +1,24 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Node js backend using express",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:dev": "nodemon index.js",
+    "start:prod": "node index.js",
+    "migrate": "node migrations.js",
+    "db:start": "docker run --rm --name pg-docker -e POSTGRES_PASSWORD=docker -d -p 5432:5432 -v $HOME/Projects/restaurants/backend/data:/var/lib/postgresql/data postgres",
+    "db:connect": "docker exec -it [container_name] psql -U [postgres_user]"
+  },
+  "author": "James Johnson",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.5.1",
+    "postgres-migrations": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
