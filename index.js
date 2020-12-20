@@ -55,8 +55,23 @@ app.post('/delete/:id', async (req, res) => {
     return res.status(500).send('unable to delte restauarant');
   }
   res.status(200).send('Restaurant deleted');
+});
+
+app.post('/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, rating } = req.body;
+  if(!name || !rating || !id){
+    res.status(500).send('Failed to update restaurant');
+  }
+
+  dbClient.query(`UPDATE restaurants SET name=$1, rating=$2 WHERE id=$3`, [name, rating, id]);
+  res.status(200).send(`Updated restaurant ${id}`);
 })
 
+if(!dbClient){
+  console.error('There was not connection established with database')
+  process.exit(1);
+}
 
 const PORT = process.env.port || 8000;
 
