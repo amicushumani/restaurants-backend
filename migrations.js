@@ -17,9 +17,8 @@ let runMigration = async  () => {
     });
     await migrate(dbConfig, "./migrations");
   } catch(e) {
-    console.log('There was an error running migrations: ', e)
+    console.error('There was an error running migrations: ', e)
   }
-
 }
 
 runMigration();
