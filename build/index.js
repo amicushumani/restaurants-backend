@@ -50,27 +50,30 @@ app.use(function (req, res, next) {
 });
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded());
-app.get('/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var rows;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                console.log('get was called');
-                return [4 /*yield*/, dbClient.query('SELECT * FROM restaurants;')];
-            case 1:
-                rows = (_a.sent()).rows;
-                console.log('rows returned ', rows);
-                if (rows.length > 0) {
-                    res.status(200).send(rows);
+app.get('/', getHandler);
+function getHandler(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var rows;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    console.log('get was called');
+                    return [4 /*yield*/, dbClient.query('SELECT * FROM restaurants;')];
+                case 1:
+                    rows = (_a.sent()).rows;
+                    console.log('rows returned ', rows);
+                    if (rows.length > 0) {
+                        res.status(200).send(rows);
+                        return [2 /*return*/];
+                    }
+                    else {
+                        return [2 /*return*/, res.status(200).send([{ id: 0, name: 'No Restaurants Found', rating: 0 }])];
+                    }
                     return [2 /*return*/];
-                }
-                else {
-                    return [2 /*return*/, res.status(200).send([{ id: 0, name: 'No Restaurants Found', rating: 0 }])];
-                }
-                return [2 /*return*/];
-        }
+            }
+        });
     });
-}); });
+}
 app.post('/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, name, rating, e_1;
     return __generator(this, function (_b) {

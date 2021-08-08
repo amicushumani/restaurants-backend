@@ -3,7 +3,6 @@ import express from 'express';
 const dbClient = require('./dbClient');
 const app = express();
 
-
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -12,8 +11,17 @@ app.use(function (req, res, next) {
 
 app.use(express.json());
 app.use(express.urlencoded());
+// GET //
+app.get('/', getHandler);
 
-app.get('/', async (req, res) => {
+// POST //
+app.post('/', postHandler);
+app.post('/edit/:id', editHandler);
+
+// DELETE //
+app.post('/delete/:id', deleteHandler);
+
+async function getHandler (req, res) {
   console.log('get was called')
   const { rows } = await dbClient.query('SELECT * FROM restaurants;');
   console.log('rows returned ', rows)
@@ -22,11 +30,10 @@ app.get('/', async (req, res) => {
     return;
   } else { 
     return res.status(200).send([ { id: 0, name: 'No Restaurants Found', rating: 0}]);
-  }
-//   res.send(204, 'No restaurants found');
-});
+  }  
+}
 
-app.post('/', async (req, res) => {
+async function postHandler (req, res){
   const { name, rating } = req.body;
   console.log('adding res', name, rating)
   try{
@@ -36,22 +43,22 @@ app.post('/', async (req, res) => {
   }
 
   res.status(200).send()
-});
+}
 
 // TODO: add editding form in frontend
-app.post('/edit/:id', async (req, res) => {
+async function editHandler(req, res) {
   const { id } = req.params;
   const { name, rating } = req.body;
   try {
-    dbClient.query(`UPDATE restaurants set name=$1, rating=#2 WHERE id=$3`, [name, rating, id]);
+    dbClient.query(`UPDATE restaurants set name=$1, rating=$2 WHERE id=$3`, [name, rating, id]);
   } catch (e) {
     res.send(500).send('Failed to update restaurant');
   }
-    //   @ts-ignore
+    
   res.staus(200).send();
-});
+}
 
-app.post('/delete/:id', async (req, res) => {
+async function deleteHandler(req, res) {
   const { id } = req.params
 
   try {
@@ -60,18 +67,7 @@ app.post('/delete/:id', async (req, res) => {
     return res.status(500).send('unable to delte restauarant');
   }
   res.status(200).send('Restaurant deleted');
-});
-
-app.post('/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, rating } = req.body;
-  if(!name || !rating || !id){
-    res.status(500).send('Failed to update restaurant');
-  }
-
-  dbClient.query(`UPDATE restaurants SET name=$1, rating=$2 WHERE id=$3`, [name, rating, id]);
-  res.status(200).send(`Updated restaurant ${id}`);
-})
+}
 
 if(!dbClient){
   console.error('There was not connection established with database')
