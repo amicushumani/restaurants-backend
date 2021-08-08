@@ -1,4 +1,5 @@
-const express = require('express');
+// const express = require('express');
+import express from 'express';
 const dbClient = require('./dbClient');
 const app = express();
 
@@ -15,11 +16,14 @@ app.use(express.urlencoded());
 app.get('/', async (req, res) => {
   console.log('get was called')
   const { rows } = await dbClient.query('SELECT * FROM restaurants;');
+  console.log('rows returned ', rows)
   if(rows.length > 0 ){
     res.status(200).send(rows);
     return;
+  } else { 
+    return res.status(200).send([ { id: 0, name: 'No Restaurants Found', rating: 0}]);
   }
-  res.send(204, 'No restaurants found');
+//   res.send(204, 'No restaurants found');
 });
 
 app.post('/', async (req, res) => {
@@ -43,7 +47,8 @@ app.post('/edit/:id', async (req, res) => {
   } catch (e) {
     res.send(500).send('Failed to update restaurant');
   }
-  res.staus(200);
+    //   @ts-ignore
+  res.staus(200).send();
 });
 
 app.post('/delete/:id', async (req, res) => {

@@ -4,9 +4,10 @@
   "description": "Node js backend using express",
   "main": "index.js",
   "scripts": {
+    "build": "tsc --build tsconfig.json",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start:dev": "nodemon index.js",
-    "start:prod": "node index.js",
+    "start:dev": "nodemon ./build/index.js",
+    "start:prod": "node ./build/index.js",
     "migrate": "node migrations.js",
     "db:start": "docker run --rm --name pg-docker -e POSTGRES_PASSWORD=docker -d -p 5432:5432 -v $HOME/Projects/restaurants/backend/data:/var/lib/postgresql/data postgres",
     "db:connect": "docker exec -it [container_name] psql -U [postgres_user]"
@@ -19,6 +20,12 @@
     "postgres-migrations": "^5.1.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "@babel/cli": "^7.14.8",
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/express": "^4.17.13",
+    "nodemon": "^2.0.6",
+    "typescript": "^4.3.5"
   }
 }
