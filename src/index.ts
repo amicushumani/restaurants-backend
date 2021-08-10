@@ -1,6 +1,7 @@
 import express from 'express';
 import { dbClient } from './dbClient'
-import { verifyNewResto } from './middleware'
+import { verifyNewResto, verifyEditResto } from './middleware'
+
 const app = express();
 
 app.use(function (req, res, next) {
@@ -16,7 +17,7 @@ app.get('/', getHandler);
 
 // POST //
 app.post('/', verifyNewResto, postHandler);
-app.post('/edit/:id', editHandler);
+app.post('/edit/:id', verifyEditResto, editHandler);
 
 // DELETE //
 app.post('/delete/:id', deleteHandler);

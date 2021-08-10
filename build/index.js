@@ -54,7 +54,7 @@ app.use(express_1.default.urlencoded());
 app.get('/', getHandler);
 // POST //
 app.post('/', middleware_1.verifyNewResto, postHandler);
-app.post('/edit/:id', editHandler);
+app.post('/edit/:id', middleware_1.verifyEditResto, editHandler);
 // DELETE //
 app.post('/delete/:id', deleteHandler);
 function getHandler(req, res) {
