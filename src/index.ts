@@ -1,6 +1,6 @@
-// const express = require('express');
 import express from 'express';
-const dbClient = require('./dbClient');
+import { dbClient } from './dbClient'
+import { verifyNewResto } from './middleware'
 const app = express();
 
 app.use(function (req, res, next) {
@@ -8,23 +8,23 @@ app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
-
 app.use(express.json());
 app.use(express.urlencoded());
+
 // GET //
 app.get('/', getHandler);
 
 // POST //
-app.post('/', postHandler);
+app.post('/', verifyNewResto, postHandler);
 app.post('/edit/:id', editHandler);
 
 // DELETE //
 app.post('/delete/:id', deleteHandler);
 
+
 async function getHandler (req, res) {
-  console.log('get was called')
-  const { rows } = await dbClient.query('SELECT * FROM restaurants;');
-  console.log('rows returned ', rows)
+  console.log('hit get handler')
+  const { rows } = await dbClient.query('SELECT * FROM restaurants;', []);
   if(rows.length > 0 ){
     res.status(200).send(rows);
     return;
@@ -34,18 +34,18 @@ async function getHandler (req, res) {
 }
 
 async function postHandler (req, res){
-  const { name, rating } = req.body;
-  console.log('adding res', name, rating)
+  console.log('hit post handler')
+  const { name, rating, description } = req.body;
   try{
-    await dbClient.query('INSERT INTO restaurants (name, rating) VALUES($1, $2);', [name, rating]);
+    await dbClient.query('INSERT INTO restaurants (name, rating, description) VALUES($1, $2, $3);', [name, rating, description]);
   } catch(e){
+    console.log('creating resto went wrong', e)
     res.status(500).send('Somethig went wrong')
   }
 
   res.status(200).send()
 }
 
-// TODO: add editding form in frontend
 async function editHandler(req, res) {
   const { id } = req.params;
   const { name, rating } = req.body;
@@ -60,7 +60,6 @@ async function editHandler(req, res) {
 
 async function deleteHandler(req, res) {
   const { id } = req.params
-
   try {
     await dbClient.query('DELETE FROM restaurants WHERE id=$1', [id]);
   } catch (e) {

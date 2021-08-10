@@ -39,9 +39,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// const express = require('express');
 var express_1 = __importDefault(require("express"));
-var dbClient = require('./dbClient');
+var dbClient_1 = require("./dbClient");
+var middleware_1 = require("./middleware");
 var app = express_1.default();
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -50,18 +50,23 @@ app.use(function (req, res, next) {
 });
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded());
+// GET //
 app.get('/', getHandler);
+// POST //
+app.post('/', middleware_1.verifyNewResto, postHandler);
+app.post('/edit/:id', editHandler);
+// DELETE //
+app.post('/delete/:id', deleteHandler);
 function getHandler(req, res) {
     return __awaiter(this, void 0, void 0, function () {
         var rows;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    console.log('get was called');
-                    return [4 /*yield*/, dbClient.query('SELECT * FROM restaurants;')];
+                    console.log('hit get handler');
+                    return [4 /*yield*/, dbClient_1.dbClient.query('SELECT * FROM restaurants;', [])];
                 case 1:
                     rows = (_a.sent()).rows;
-                    console.log('rows returned ', rows);
                     if (rows.length > 0) {
                         res.status(200).send(rows);
                         return [2 /*return*/];
@@ -74,83 +79,75 @@ function getHandler(req, res) {
         });
     });
 }
-app.post('/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, rating, e_1;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                _a = req.body, name = _a.name, rating = _a.rating;
-                console.log('adding res', name, rating);
-                _b.label = 1;
-            case 1:
-                _b.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, dbClient.query('INSERT INTO restaurants (name, rating) VALUES($1, $2);', [name, rating])];
-            case 2:
-                _b.sent();
-                return [3 /*break*/, 4];
-            case 3:
-                e_1 = _b.sent();
-                res.status(500).send('Somethig went wrong');
-                return [3 /*break*/, 4];
-            case 4:
-                res.status(200).send();
-                return [2 /*return*/];
-        }
+function postHandler(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var _a, name, rating, description, e_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    console.log('hit post handler');
+                    _a = req.body, name = _a.name, rating = _a.rating, description = _a.description;
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, dbClient_1.dbClient.query('INSERT INTO restaurants (name, rating, description) VALUES($1, $2, $3);', [name, rating, description])];
+                case 2:
+                    _b.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_1 = _b.sent();
+                    console.log('creating resto went wrong', e_1);
+                    res.status(500).send('Somethig went wrong');
+                    return [3 /*break*/, 4];
+                case 4:
+                    res.status(200).send();
+                    return [2 /*return*/];
+            }
+        });
     });
-}); });
-// TODO: add editding form in frontend
-app.post('/edit/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, _a, name, rating;
-    return __generator(this, function (_b) {
-        id = req.params.id;
-        _a = req.body, name = _a.name, rating = _a.rating;
-        try {
-            dbClient.query("UPDATE restaurants set name=$1, rating=#2 WHERE id=$3", [name, rating, id]);
-        }
-        catch (e) {
-            res.send(500).send('Failed to update restaurant');
-        }
-        //   @ts-ignore
-        res.staus(200).send();
-        return [2 /*return*/];
+}
+function editHandler(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var id, _a, name, rating;
+        return __generator(this, function (_b) {
+            id = req.params.id;
+            _a = req.body, name = _a.name, rating = _a.rating;
+            try {
+                dbClient_1.dbClient.query("UPDATE restaurants set name=$1, rating=$2 WHERE id=$3", [name, rating, id]);
+            }
+            catch (e) {
+                res.send(500).send('Failed to update restaurant');
+            }
+            res.staus(200).send();
+            return [2 /*return*/];
+        });
     });
-}); });
-app.post('/delete/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, e_2;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                id = req.params.id;
-                _a.label = 1;
-            case 1:
-                _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, dbClient.query('DELETE FROM restaurants WHERE id=$1', [id])];
-            case 2:
-                _a.sent();
-                return [3 /*break*/, 4];
-            case 3:
-                e_2 = _a.sent();
-                return [2 /*return*/, res.status(500).send('unable to delte restauarant')];
-            case 4:
-                res.status(200).send('Restaurant deleted');
-                return [2 /*return*/];
-        }
+}
+function deleteHandler(req, res) {
+    return __awaiter(this, void 0, void 0, function () {
+        var id, e_2;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    id = req.params.id;
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 3, , 4]);
+                    return [4 /*yield*/, dbClient_1.dbClient.query('DELETE FROM restaurants WHERE id=$1', [id])];
+                case 2:
+                    _a.sent();
+                    return [3 /*break*/, 4];
+                case 3:
+                    e_2 = _a.sent();
+                    return [2 /*return*/, res.status(500).send('unable to delte restauarant')];
+                case 4:
+                    res.status(200).send('Restaurant deleted');
+                    return [2 /*return*/];
+            }
+        });
     });
-}); });
-app.post('/:id', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, _a, name, rating;
-    return __generator(this, function (_b) {
-        id = req.params.id;
-        _a = req.body, name = _a.name, rating = _a.rating;
-        if (!name || !rating || !id) {
-            res.status(500).send('Failed to update restaurant');
-        }
-        dbClient.query("UPDATE restaurants SET name=$1, rating=$2 WHERE id=$3", [name, rating, id]);
-        res.status(200).send("Updated restaurant " + id);
-        return [2 /*return*/];
-    });
-}); });
-if (!dbClient) {
+}
+if (!dbClient_1.dbClient) {
     console.error('There was not connection established with database');
     process.exit(1);
 }
