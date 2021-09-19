@@ -17,4 +17,3 @@ phases:
   post_build:
     commands:  
       - echo post build
-      - npm run start:prod

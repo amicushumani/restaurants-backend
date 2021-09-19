@@ -1,9 +1,9 @@
-
 interface VerifyNewRestoArgs {
     name: string;
     rating: number;
     description: string;
 }
+
 export function verifyNewResto(req, res, next): void {
     const { name, rating, description } = req.body;
     console.log('name, rating, des', name, rating, description);
